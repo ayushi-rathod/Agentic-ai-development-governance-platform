@@ -1,0 +1,7 @@
+name: sample-product
+description: >
+  Fictional example product used to demonstrate governed feature delivery.
+  Not derived from, and does not resemble, any real company's product.
+default_approver: engineering-lead
+domains:
+  - payment-service

@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+# Unit tests (fast, isolated, synthetic fixtures) run by default via
+# `pytest`. Evaluations (slower, run against real bundled governance/
+# examples content, answer behavioral questions like "did code-review
+# catch the known violation?") run separately via `pytest evaluations/`.
+testpaths = ["tests"]

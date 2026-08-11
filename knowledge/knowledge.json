@@ -1,0 +1,279 @@
+{
+  "repo_path": "examples/sample-product",
+  "components": [
+    {
+      "name": "api",
+      "description": "API layer: HTTP-style route handlers.",
+      "files": [
+        "api/__init__.py",
+        "api/keys.py",
+        "api/users.py"
+      ]
+    },
+    {
+      "name": "auth",
+      "description": "Authorization for privileged, state-changing actions.",
+      "files": [
+        "auth/__init__.py",
+        "auth/authorization.py"
+      ]
+    },
+    {
+      "name": "models",
+      "description": "Data models: plain dataclasses with no behavior, used by services/.",
+      "files": [
+        "models/__init__.py",
+        "models/account.py",
+        "models/key.py"
+      ]
+    },
+    {
+      "name": "services",
+      "description": "Business logic layer.",
+      "files": [
+        "services/__init__.py",
+        "services/account_service.py",
+        "services/audit.py",
+        "services/key_service.py"
+      ]
+    },
+    {
+      "name": "tests",
+      "description": "Tests, one file per api/ handler it covers (see README.md).",
+      "files": [
+        "tests/__init__.py",
+        "tests/test_keys.py",
+        "tests/test_users.py"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "KF-001",
+      "category": "authorization_pattern",
+      "statement": "Privileged actions are authorized by calling require_authorization() before performing the action.",
+      "evidence": [
+        "auth/authorization.py:16"
+      ],
+      "confidence": 0.95,
+      "uncertain": false
+    },
+    {
+      "id": "KF-002",
+      "category": "validation_pattern",
+      "statement": "Handlers validate required fields with an explicit guard that raises ValueError before using them.",
+      "evidence": [
+        "api/keys.py:11",
+        "api/users.py:10"
+      ],
+      "confidence": 0.95,
+      "uncertain": false
+    },
+    {
+      "id": "KF-003",
+      "category": "test_organization",
+      "statement": "Tests are organized one-to-one with the source file they cover: api/keys.py <- tests/test_keys.py; api/users.py <- tests/test_users.py; auth/authorization.py <- tests/test_keys.py.",
+      "evidence": [
+        "api/keys.py",
+        "api/users.py",
+        "auth/authorization.py",
+        "tests/test_keys.py",
+        "tests/test_users.py"
+      ],
+      "confidence": 0.95,
+      "uncertain": false
+    },
+    {
+      "id": "KF-004",
+      "category": "files_change_together",
+      "statement": "Adding or changing a feature like api/keys.py typically touches its whole dependency chain: api/keys.py -> api/__init__.py -> auth/authorization.py -> services/key_service.py -> models/key.py -> services/audit.py.",
+      "evidence": [
+        "api/keys.py",
+        "api/__init__.py",
+        "auth/authorization.py",
+        "services/key_service.py",
+        "models/key.py",
+        "services/audit.py"
+      ],
+      "confidence": 0.95,
+      "uncertain": false
+    },
+    {
+      "id": "KF-005",
+      "category": "adding_an_endpoint",
+      "statement": "A new endpoint follows the same shape as api/keys.py: a thin api/ handler that validates input, calls the authorization check if the action is privileged, and delegates to a services/ function.",
+      "evidence": [
+        "api/keys.py",
+        "api/__init__.py",
+        "auth/authorization.py",
+        "services/key_service.py",
+        "models/key.py",
+        "services/audit.py"
+      ],
+      "confidence": 0.95,
+      "uncertain": false
+    }
+  ],
+  "dependencies": [
+    {
+      "kind": "internal",
+      "source": "api/keys.py",
+      "target": "api/__init__.py"
+    },
+    {
+      "kind": "internal",
+      "source": "api/keys.py",
+      "target": "auth/authorization.py"
+    },
+    {
+      "kind": "internal",
+      "source": "api/keys.py",
+      "target": "services/key_service.py"
+    },
+    {
+      "kind": "internal",
+      "source": "api/users.py",
+      "target": "api/__init__.py"
+    },
+    {
+      "kind": "internal",
+      "source": "api/users.py",
+      "target": "services/account_service.py"
+    },
+    {
+      "kind": "internal",
+      "source": "services/account_service.py",
+      "target": "models/account.py"
+    },
+    {
+      "kind": "internal",
+      "source": "services/key_service.py",
+      "target": "models/key.py"
+    },
+    {
+      "kind": "internal",
+      "source": "services/key_service.py",
+      "target": "services/audit.py"
+    },
+    {
+      "kind": "internal",
+      "source": "tests/test_keys.py",
+      "target": "api/keys.py"
+    },
+    {
+      "kind": "internal",
+      "source": "tests/test_keys.py",
+      "target": "auth/authorization.py"
+    },
+    {
+      "kind": "internal",
+      "source": "tests/test_users.py",
+      "target": "api/users.py"
+    },
+    {
+      "kind": "external",
+      "source": "services/key_service.py",
+      "target": "bcrypt"
+    }
+  ],
+  "flows": [
+    {
+      "name": "POST /admin/accounts/{account_id}/keys/rotate",
+      "steps": [
+        "POST /admin/accounts/{account_id}/keys/rotate -> api/keys.py:rotate_api_key()",
+        "-> auth/authorization.py",
+        "-> api/__init__.py",
+        "-> services/key_service.py",
+        "-> models/key.py",
+        "-> services/audit.py"
+      ],
+      "evidence": [
+        "api/keys.py",
+        "auth/authorization.py",
+        "api/__init__.py",
+        "services/key_service.py",
+        "models/key.py",
+        "services/audit.py"
+      ]
+    },
+    {
+      "name": "GET /accounts/{account_id}",
+      "steps": [
+        "GET /accounts/{account_id} -> api/users.py:get_user()",
+        "-> api/__init__.py",
+        "-> services/account_service.py",
+        "-> models/account.py"
+      ],
+      "evidence": [
+        "api/users.py",
+        "api/__init__.py",
+        "services/account_service.py",
+        "models/account.py"
+      ]
+    }
+  ],
+  "features": [
+    {
+      "id": "rotate-api-key",
+      "description": "Rotate the API key for a service account.",
+      "entry_points": [
+        "api/keys.py"
+      ],
+      "dependencies": [
+        "auth/authorization.py",
+        "api/__init__.py",
+        "services/key_service.py",
+        "models/key.py",
+        "services/audit.py"
+      ],
+      "tests": [
+        "tests/test_keys.py"
+      ],
+      "evidence": [
+        "api/keys.py:11"
+      ]
+    },
+    {
+      "id": "get-user",
+      "description": "Look up a service account by id.",
+      "entry_points": [
+        "api/users.py"
+      ],
+      "dependencies": [
+        "api/__init__.py",
+        "services/account_service.py",
+        "models/account.py"
+      ],
+      "tests": [
+        "tests/test_users.py"
+      ],
+      "evidence": [
+        "api/users.py:10"
+      ]
+    }
+  ],
+  "glossary": [
+    {
+      "term": "AuthorizationError",
+      "definition": "Raised when a caller is not authorized to perform an action.",
+      "evidence": [
+        "auth/authorization.py:12"
+      ]
+    },
+    {
+      "term": "ServiceAccount",
+      "definition": "A non-human identity (e.g. a backend integration) that owns API keys.",
+      "evidence": [
+        "models/account.py:9"
+      ]
+    },
+    {
+      "term": "ApiKey",
+      "definition": "A rotated credential belonging to a service account.",
+      "evidence": [
+        "models/key.py:9"
+      ]
+    }
+  ],
+  "architecture_overview": "The system is organized into api, auth, models, services, tests. A request enters through api/keys.py and flows through api/__init__.py -> auth/authorization.py -> services/key_service.py -> models/key.py -> services/audit.py."
+}

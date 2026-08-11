@@ -1,0 +1,36 @@
+# Governed feature-development workflow.
+#
+# This isn't decorative: src/main.py's `feature` subcommand loads
+# gates.qc.max_remediation_attempts and gates.human_approval.required from
+# this file rather than hardcoding them, so changing this file changes the
+# workflow's behavior.
+name: feature-development
+description: >
+  Turn a feature request into reviewed, evaluated, human-approved code
+  under layered governance (global -> product -> domain).
+
+steps:
+  - id: tech_spec
+    agent: TechSpecAgent
+    skill: create-tech-spec
+    produces: technical spec (requirements traced to governance rule ids)
+  - id: implement
+    agent: ImplementationAgent
+    skill: implement
+    produces: source code satisfying the spec
+  - id: review
+    agent: CodeReviewAgent
+    skill: code-review
+    produces: per-rule PASS/FAIL/WARNING results
+  - id: evaluate
+    agent: EvaluationAgent
+    produces: EvaluationReport
+
+gates:
+  qc:
+    on_fail: remediate
+    max_remediation_attempts: 1
+    on_exhausted: block
+  human_approval:
+    required: true
+    on_pending: halt

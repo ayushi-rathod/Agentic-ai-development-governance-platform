@@ -1,0 +1,27 @@
+features:
+- id: rotate-api-key
+  description: Rotate the API key for a service account.
+  entry_points:
+  - api/keys.py
+  dependencies:
+  - auth/authorization.py
+  - api/__init__.py
+  - services/key_service.py
+  - models/key.py
+  - services/audit.py
+  tests:
+  - tests/test_keys.py
+  evidence:
+  - api/keys.py:11
+- id: get-user
+  description: Look up a service account by id.
+  entry_points:
+  - api/users.py
+  dependencies:
+  - api/__init__.py
+  - services/account_service.py
+  - models/account.py
+  tests:
+  - tests/test_users.py
+  evidence:
+  - api/users.py:10
