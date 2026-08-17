@@ -139,7 +139,7 @@ have caught on their own.
 
 ## The feature-development workflow
 
-```mermaid
+```
 flowchart TD
     FR[Feature request] --> TS[TechSpecAgent\n/create-tech-spec]
     Rules[Resolved governance rules] --> TS
@@ -204,7 +204,7 @@ rediscover the architecture, conventions, dependencies, and feature
 behavior on every run, the system generates evidence-backed knowledge
 artifacts that later agents can selectively consume.
 
-```mermaid
+```
 flowchart TD
     Repo[Existing Repository] --> KEA[KnowledgeExtractionAgent]
     KEA --> Artifacts[Reusable Knowledge Artifacts\nKNOWLEDGE.md / FEATURES.yaml / GLOSSARY.md / architecture.md]
