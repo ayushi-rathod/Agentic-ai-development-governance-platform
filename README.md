@@ -111,7 +111,7 @@ below).
 
 ## Layered governance
 
-```mermaid
+```
 flowchart TD
     G["governance/global/\nsecurity.md, testing.md\n(5 rules)"] --> P
     P["governance/products/sample-product/\npolicies.md\n(+1 rule: rate limiting)"] --> D
